@@ -23,14 +23,60 @@ public class Basketball
         reader.TextFieldType = FieldType.Delimited;
         reader.SetDelimiters(",");
         reader.ReadFields(); // ignore header row
-        while (!reader.EndOfData) {
+        while (!reader.EndOfData)
+        {
             var fields = reader.ReadFields()!;
             var playerId = fields[0];
             var points = int.Parse(fields[8]);
+        
+
+        if (players.ContainsKey(playerId))
+        {
+            players[playerId] += points;
+        }
+        else
+        {
+            players[playerId] = points;
+        }
         }
 
-        Console.WriteLine($"Players: {{{string.Join(", ", players)}}}");
-
         var topPlayers = new string[10];
+        foreach (var kvp in players)
+        {
+            var playerId = kvp.Key;
+            var totalPoints = kvp.Value;
+
+            for (int i = 0; i < topPlayers.Length; i++)
+            {
+                if (topPlayers[i] == null)
+                {
+                    topPlayers[i] = playerId;
+                    break;
+                }
+                var currentTopPlayerId = topPlayers[i];
+                var currentTopPoints = players[currentTopPlayerId];
+                if (totalPoints > currentTopPoints)
+                {
+                    // Shift down the lower players
+                    for (int j = topPlayers.Length - 1; j > i; j--)
+                    {
+                        topPlayers[j] = topPlayers[j - 1];
+                    }
+                    topPlayers[i] = playerId;
+                    break;
+                }
+            }
+        }
+
+        Console.WriteLine("\nTop 10 Career Points:");
+        Console.WriteLine("---------------------");
+        Console.WriteLine("Rank | Player ID | Points");
+        Console.WriteLine("-------------------------");
+        for (int i = 0; i < topPlayers.Length; i++)
+        {
+            var playerId = topPlayers[i];
+            var totalPoints = players[playerId];
+            Console.WriteLine($"{i + 1,4} | {playerId,9} | {totalPoints,6}");
+        }
     }
 }
